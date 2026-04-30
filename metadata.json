@@ -1,0 +1,6 @@
+{
+  "name": "Bead Pixel Pro",
+  "description": "A professional bead pattern design tool with image pixelation, color isolation, and grid management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["image-processing", "grid-system"]
+}
