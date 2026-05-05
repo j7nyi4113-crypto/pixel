@@ -56,7 +56,8 @@ export default function App() {
   const [aspectRatio, setAspectRatio] = useState<number | null>(null);
   const [isLocked, setIsLocked] = useState(false);
   const [originalImage, setOriginalImage] = useState<File | null>(null);
-  const [isAuthReady, setIsAuthReady] = useState(true); // Mocking for now
+  const [isAuthReady, setIsAuthReady] = useState(true);
+  const [activeMobilePanel, setActiveMobilePanel] = useState<'tools' | 'inventory' | null>(null);
 
   // Initialize with a sample pattern (all white)
   React.useEffect(() => {
@@ -665,16 +666,21 @@ export default function App() {
   const toggleGrid = () => setIsGridVisible(!isGridVisible);
 
   return (
-    <div className="flex h-screen bg-[#131313] text-[#e5e2e1] overflow-hidden font-sans">
+    <div className="flex flex-col md:flex-row h-screen bg-[#131313] text-[#e5e2e1] overflow-hidden font-sans">
       {/* Top Navigation Bar */}
       <header className="fixed top-0 w-full z-50 bg-[#131313]/60 backdrop-blur-xl border-b border-white/5">
-        <div className="flex items-center justify-between px-6 h-14">
-          <div className="flex items-center gap-8">
-            <span className="text-lg font-bold tracking-tighter text-[#baf2ff]">拼豆像素大师 (Bead Pixel Pro)</span>
-            <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+        <div className="flex items-center justify-between px-4 md:px-6 h-12 md:h-14">
+          <div className="flex items-center gap-2 md:gap-8">
+            <span className="hidden sm:inline text-sm md:text-lg font-bold tracking-tighter text-[#baf2ff] truncate max-w-[100px] md:max-w-none">拼豆像素大师</span>
+            <nav className="flex items-center gap-1 md:gap-6">
               <button 
                 onClick={() => setActiveTab('project')}
-                className={cn("transition-colors", activeTab === 'project' ? "text-[#00E0FF] font-bold" : "text-[#8e9192] hover:text-white")}
+                className={cn(
+                  "transition-colors px-2 py-1 md:px-0 md:py-0 rounded text-xs md:text-sm font-medium",
+                  activeTab === 'project' 
+                    ? "bg-[#00E0FF]/10 md:bg-transparent text-[#00E0FF] font-bold" 
+                    : "text-[#8e9192] hover:text-white"
+                )}
               >
                 颜色搜索
               </button>
@@ -683,60 +689,64 @@ export default function App() {
                   setActiveTab('view');
                   setSelectedColorId(null);
                 }}
-                className={cn("transition-colors", activeTab === 'view' ? "text-[#00E0FF] font-bold" : "text-[#8e9192] hover:text-white")}
+                className={cn(
+                  "transition-colors px-2 py-1 md:px-0 md:py-0 rounded text-xs md:text-sm font-medium",
+                  activeTab === 'view' 
+                    ? "bg-[#00E0FF]/10 md:bg-transparent text-[#00E0FF] font-bold" 
+                    : "text-[#8e9192] hover:text-white"
+                )}
               >
                 视图
               </button>
-
             </nav>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-3 ml-4 relative">
+            <div className="hidden md:flex items-center gap-3 ml-4">
               <SettingsIcon className="w-5 h-5 text-[#8e9192] cursor-pointer hover:text-white" />
               <HelpCircle className="w-5 h-5 text-[#8e9192] cursor-pointer hover:text-white" />
-              <div className="relative">
-                <button 
-                  onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
-                  className="flex items-center gap-2 bg-gradient-to-br from-[#baf2ff] to-[#00daf8] text-[#00363f] px-4 py-1.5 rounded-md text-sm font-bold shadow-lg shadow-[#00daf8]/20 hover:opacity-90 transition-opacity"
-                >
-                  <Download className="w-4 h-4" />
-                  导出
-                </button>
-                
-                <AnimatePresence>
-                  {isExportMenuOpen && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 mt-2 w-48 bg-[#1b1b1c] border border-white/10 rounded-lg shadow-2xl z-[100] overflow-hidden"
+            </div>
+            <div className="relative">
+              <button 
+                onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
+                className="flex items-center gap-1.5 md:gap-2 bg-gradient-to-br from-[#baf2ff] to-[#00daf8] text-[#00363f] px-3 md:px-4 py-1.5 rounded-md text-xs md:text-sm font-bold shadow-lg shadow-[#00daf8]/20 hover:opacity-90 transition-opacity"
+              >
+                <Download className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                导出
+              </button>
+              
+              <AnimatePresence>
+                {isExportMenuOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute right-0 mt-2 w-48 bg-[#1b1b1c] border border-white/10 rounded-lg shadow-2xl z-[100] overflow-hidden"
+                  >
+                    <button 
+                      onClick={handleExportPDF}
+                      className="w-full px-4 py-3 text-left text-xs font-bold text-[#8e9192] hover:bg-[#2a2a2a] hover:text-[#00daf8] transition-all flex items-center gap-3"
                     >
-                      <button 
-                        onClick={handleExportPDF}
-                        className="w-full px-4 py-3 text-left text-xs font-bold text-[#8e9192] hover:bg-[#2a2a2a] hover:text-[#00daf8] transition-all flex items-center gap-3"
-                      >
-                        <Download className="w-4 h-4" />
-                        导出为 PDF
-                      </button>
-                      <button 
-                        onClick={handleExportImage}
-                        className="w-full px-4 py-3 text-left text-xs font-bold text-[#8e9192] hover:bg-[#2a2a2a] hover:text-[#00daf8] transition-all flex items-center gap-3 border-t border-white/5"
-                      >
-                        <Share2 className="w-4 h-4" />
-                        导出为图片
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                      <Download className="w-4 h-4" />
+                      导出为 PDF
+                    </button>
+                    <button 
+                      onClick={handleExportImage}
+                      className="w-full px-4 py-3 text-left text-xs font-bold text-[#8e9192] hover:bg-[#2a2a2a] hover:text-[#00daf8] transition-all flex items-center gap-3 border-t border-white/5"
+                    >
+                      <Share2 className="w-4 h-4" />
+                      导出为图片
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="flex flex-1 pt-14">
-        {/* Left Sidebar - Tools */}
-        <aside className="w-20 bg-[#1b1b1c]/60 backdrop-blur-xl flex flex-col items-center py-4 gap-6 border-r border-white/5">
+      <div className="flex flex-1 pt-12 md:pt-14 pb-16 md:pb-0">
+        {/* Left Sidebar - Tools (Desktop) */}
+        <aside className="hidden md:flex w-20 bg-[#1b1b1c]/60 backdrop-blur-xl flex-col items-center py-4 gap-6 border-r border-white/5">
           <div className="flex flex-col items-center gap-1 mb-2">
             <div className="w-8 h-8 rounded bg-[#353535] flex items-center justify-center">
               <Wrench className="w-4 h-4 text-[#baf2ff]" />
@@ -930,26 +940,26 @@ export default function App() {
           }}
         >
           {/* Canvas Controls */}
-          <div className="fixed top-18 left-24 z-10 flex gap-2">
-            <div className="bg-[#2a2a2a]/80 backdrop-blur-md p-1 rounded-lg flex gap-1 border border-white/5">
-              <button onClick={() => setZoom(z => Math.min(z + 0.1, 3))} className="p-2 hover:bg-[#353535] rounded text-white transition-colors">
-                <ZoomInIcon className="w-4 h-4" />
+          <div className="fixed top-14 md:top-18 left-4 md:left-24 z-10 flex gap-2">
+            <div className="bg-[#2a2a2a]/80 backdrop-blur-md p-1 rounded-lg flex gap-1 border border-white/5 flex-wrap">
+              <button onClick={() => setZoom(z => Math.min(z + 0.1, 3))} className="p-1.5 md:p-2 hover:bg-[#353535] rounded text-white transition-colors">
+                <ZoomInIcon className="w-3.5 h-3.5 md:w-4 md:h-4" />
               </button>
-              <button onClick={() => setZoom(z => Math.max(z - 0.1, 0.5))} className="p-2 hover:bg-[#353535] rounded text-white transition-colors">
-                <ZoomOutIcon className="w-4 h-4" />
+              <button onClick={() => setZoom(z => Math.max(z - 0.1, 0.5))} className="p-1.5 md:p-2 hover:bg-[#353535] rounded text-white transition-colors">
+                <ZoomOutIcon className="w-3.5 h-3.5 md:w-4 md:h-4" />
               </button>
               <div className="w-px bg-white/10 mx-1" />
               <button 
                 onClick={() => setBeadState(s => s === 'placed' ? 'melted' : 'placed')} 
                 className={cn(
-                  "flex items-center gap-2 px-3 py-1.5 rounded transition-all text-[10px] font-bold uppercase tracking-wider",
+                  "flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded transition-all text-[9px] md:text-[10px] font-bold uppercase tracking-wider",
                   beadState === 'melted' ? "bg-[#00daf8] text-[#00363f]" : "bg-[#353535] text-white hover:bg-[#474747]"
                 )}
               >
-                {beadState === 'placed' ? '摆放模式' : '熨烫预览'}
+                {beadState === 'placed' ? '摆放' : '熨烫'}
               </button>
-              <div className="w-px bg-white/10 mx-1" />
-              <div className="px-3 py-1.5 bg-[#131313]/50 rounded text-[10px] font-mono text-[#00daf8] flex items-center gap-2">
+              <div className="hidden md:block w-px bg-white/10 mx-1" />
+              <div className="hidden md:flex px-3 py-1.5 bg-[#131313]/50 rounded text-[10px] font-mono text-[#00daf8] items-center gap-2">
                 <Grid3X3 className="w-3 h-3" />
                 {resolution.width} x {resolution.height} 颗
               </div>
@@ -959,26 +969,24 @@ export default function App() {
           {/* The Grid */}
           <div 
             className={cn(
-              "relative border border-white/5 shadow-2xl transition-all duration-500",
+              "relative border border-white/5 shadow-2xl transition-all duration-500 max-w-full w-full md:w-auto",
               isFlipped && "scale-x-[-1]"
             )}
             ref={boardRef}
             style={{ 
               transform: `scale(${zoom}) ${isFlipped ? 'scaleX(-1)' : ''}`,
-              width: aspectRatio ? (aspectRatio > 1 ? '800px' : `${800 * aspectRatio}px`) : '800px',
-              height: aspectRatio ? (aspectRatio > 1 ? `${800 / aspectRatio}px` : '800px') : '800px',
-              backgroundColor: '#131313',
+              width: 'min(800px, calc(100vw - 32px))',
+              height: aspectRatio ? `calc(min(800px, calc(100vw - 32px)) / ${aspectRatio})` : 'min(800px, calc(100vw - 32px))',
+                backgroundColor: '#131313',
               backgroundImage: isGridVisible ? `
                 linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
                 linear-gradient(to right, rgba(0, 218, 248, 0.1) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(0, 218, 248, 0.1) 1px, transparent 1px)
               ` : 'none',
-              backgroundSize: aspectRatio 
-                ? (aspectRatio > 1 
-                    ? `${800 / resolution.width}px ${800 / (aspectRatio * resolution.height)}px` 
-                    : `${(800 * aspectRatio) / resolution.width}px ${800 / resolution.height}px`)
-                : `${800 / resolution.width}px ${800 / resolution.height}px`,
+              backgroundSize: isGridVisible
+                ? `${100 / resolution.width}% ${aspectRatio ? 100 / Math.round(resolution.width / aspectRatio) : 100 / resolution.height}%`
+                : 'none',
               filter: beadState === 'melted' ? 'blur(2px) contrast(1.5)' : 'none'
             }}
           >
@@ -992,8 +1000,8 @@ export default function App() {
             )}
             <canvas 
               ref={canvasRef}
-              width={aspectRatio ? (aspectRatio > 1 ? 1600 : 1600 * aspectRatio) : 1600}
-              height={aspectRatio ? (aspectRatio > 1 ? 1600 / aspectRatio : 1600) : 1600}
+              width={1600}
+              height={aspectRatio ? Math.round(1600 / aspectRatio) : 1600}
               onClick={handleCanvasClick}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
@@ -1027,8 +1035,8 @@ export default function App() {
           </AnimatePresence>
         </main>
 
-        {/* Right Sidebar - Inventory */}
-        <aside className="w-64 bg-[#1b1b1c]/60 backdrop-blur-xl flex flex-col p-4 border-l border-white/5">
+        {/* Right Sidebar - Inventory (Desktop) */}
+        <aside className="hidden md:flex w-64 bg-[#1b1b1c]/60 backdrop-blur-xl flex-col p-4 border-l border-white/5">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xs font-medium text-white uppercase tracking-widest">库存</h2>
@@ -1089,7 +1097,7 @@ export default function App() {
       </div>
 
       {/* Floating Undo Button */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+      <div className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-50">
         <button 
           onClick={handleUndo}
           className="p-3 text-[#e5e2e1] hover:bg-[#2a2a2a] rounded-lg transition-colors flex flex-col items-center gap-1 bg-[#1b1b1c]/80 backdrop-blur-xl rounded-xl shadow-2xl border border-white/5"
@@ -1099,8 +1107,8 @@ export default function App() {
         </button>
       </div>
 
-      {/* Joystick: move image freely */}
-      <div className="fixed bottom-6 left-28 z-50 select-none">
+      {/* Joystick: move image freely - hidden on mobile */}
+      <div className="hidden md:block fixed bottom-6 left-28 z-50 select-none">
         <div className="text-[10px] uppercase tracking-widest text-[#8e9192] mb-2">
           移动图案 <span className="text-[#00daf8] font-mono normal-case">{joystickSpeedCmPerSec} cm/s</span>
         </div>
@@ -1118,6 +1126,290 @@ export default function App() {
         </div>
       </div>
 
+      {/* Mobile Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#1b1b1c]/90 backdrop-blur-xl border-t border-white/10 flex items-center justify-around h-16 safe-area-bottom">
+        <button
+          onClick={() => setActiveMobilePanel(activeMobilePanel === 'tools' ? null : 'tools')}
+          className={cn(
+            "flex flex-col items-center gap-0.5 py-1 px-4 transition-colors",
+            activeMobilePanel === 'tools' ? "text-[#00E0FF]" : "text-[#8e9192]"
+          )}
+        >
+          <Wrench className="w-5 h-5" />
+          <span className="text-[10px] font-medium">工具</span>
+        </button>
+        <button
+          onClick={() => {
+            setActiveMobilePanel(null);
+            setSelectedColorId(null);
+            setActiveTab('view');
+          }}
+          className="flex flex-col items-center gap-0.5 py-1 px-4 text-[#8e9192]"
+        >
+          <Grid3X3 className="w-5 h-5" />
+          <span className="text-[10px] font-medium">画布</span>
+        </button>
+        <button
+          onClick={() => setActiveMobilePanel(activeMobilePanel === 'inventory' ? null : 'inventory')}
+          className={cn(
+            "flex flex-col items-center gap-0.5 py-1 px-4 transition-colors",
+            activeMobilePanel === 'inventory' ? "text-[#00E0FF]" : "text-[#8e9192]"
+          )}
+        >
+          <PaletteIcon className="w-5 h-5" />
+          <span className="text-[10px] font-medium">库存</span>
+        </button>
+      </nav>
+
+      {/* Mobile Tools Bottom Sheet */}
+      <AnimatePresence>
+        {activeMobilePanel === 'tools' && (
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="md:hidden fixed bottom-16 left-0 right-0 z-40 bg-[#1b1b1c]/95 backdrop-blur-xl border-t border-white/10 rounded-t-2xl max-h-[70vh] overflow-y-auto custom-scrollbar safe-area-bottom"
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+              <span className="text-sm font-bold text-white">工具面板</span>
+              <button onClick={() => setActiveMobilePanel(null)} className="text-[#8e9192] hover:text-white">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              {/* Upload and Clear */}
+              <div className="flex gap-3">
+                <label className="flex-1 flex items-center justify-center gap-2 p-3 bg-[#2a2a2a] rounded-lg text-white cursor-pointer active:bg-[#353535]">
+                  <input ref={fileInputRef} type="file" className="hidden" onChange={handleUpload} accept="image/*" />
+                  <Upload className="w-4 h-4" />
+                  <span className="text-xs font-bold">上传图片</span>
+                </label>
+                <button onClick={clearCanvas} className="flex-1 flex items-center justify-center gap-2 p-3 bg-[#2a2a2a] rounded-lg text-white active:bg-[#353535]">
+                  <Trash2 className="w-4 h-4" />
+                  <span className="text-xs font-bold">清空画布</span>
+                </button>
+              </div>
+
+              {/* Grid and Flip */}
+              <div className="flex gap-3">
+                <button onClick={toggleFlip} className="flex-1 flex items-center justify-center gap-2 p-3 bg-[#2a2a2a] rounded-lg text-white active:bg-[#353535]">
+                  <FlipHorizontal className="w-4 h-4" />
+                  <span className="text-xs font-bold">翻转</span>
+                </button>
+                <button onClick={toggleGrid} className="flex-1 flex items-center justify-center gap-2 p-3 bg-[#2a2a2a] rounded-lg text-white active:bg-[#353535]">
+                  <Grid3X3 className="w-4 h-4" />
+                  <span className="text-xs font-bold">{isGridVisible ? '隐藏网格' : '显示网格'}</span>
+                </button>
+              </div>
+
+              {/* Board Size */}
+              <div className="bg-[#2a2a2a] p-4 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-[#8e9192] uppercase">底板尺寸</span>
+                  <span className="text-sm font-bold text-[#00daf8]">{templateSize}x{templateSize}</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="1" 
+                  max="60" 
+                  step="1"
+                  value={(templateSize - 2) / 5} 
+                  onChange={(e) => {
+                    const n = parseInt(e.target.value);
+                    setTemplateSize(5 * n + 2);
+                  }}
+                  className="w-full h-2 accent-[#00daf8] cursor-pointer"
+                />
+              </div>
+
+              {/* Palette Selection */}
+              <div className="bg-[#2a2a2a] p-4 rounded-lg">
+                <span className="text-xs font-bold text-[#8e9192] uppercase block mb-2">色系选择</span>
+                <div className="flex bg-[#131313] p-1 rounded-md">
+                  <button 
+                    onClick={() => updatePalette('221')}
+                    className={cn(
+                      "flex-1 py-2 text-xs font-bold rounded transition-all",
+                      paletteType === '221' ? "bg-[#00daf8] text-[#00363f]" : "text-[#8e9192]"
+                    )}
+                  >
+                    221色
+                  </button>
+                  <button 
+                    onClick={() => updatePalette('291')}
+                    className={cn(
+                      "flex-1 py-2 text-xs font-bold rounded transition-all",
+                      paletteType === '291' ? "bg-[#00daf8] text-[#00363f]" : "text-[#8e9192]"
+                    )}
+                  >
+                    291色
+                  </button>
+                </div>
+              </div>
+
+              {/* Image Controls */}
+              <div className="bg-[#2a2a2a] p-4 rounded-lg space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#8e9192] uppercase">图片比例</span>
+                  <button 
+                    onClick={() => setIsLocked(!isLocked)}
+                    className={cn(
+                      "p-1.5 rounded transition-all",
+                      isLocked ? "bg-[#00daf8] text-[#00363f]" : "text-[#8e9192]"
+                    )}
+                  >
+                    {isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+                  </button>
+                </div>
+                <div className={cn(isLocked && "opacity-30 pointer-events-none")}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] text-[#8e9192]">缩放</span>
+                    <span className="text-xs font-mono text-[#00daf8] font-bold">{Math.round(imageScale * 100)}%</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="0.3" 
+                    max="3" 
+                    step="0.05"
+                    value={imageScale} 
+                    onChange={(e) => setImageScale(parseFloat(e.target.value))}
+                    className="w-full h-2 accent-[#00daf8] cursor-pointer"
+                  />
+                </div>
+              </div>
+
+              {/* Filters */}
+              <div className="bg-[#2a2a2a] p-4 rounded-lg space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] text-[#8e9192]">饱和度</span>
+                    <span className="text-xs font-mono text-[#ff4081] font-bold">{saturation.toFixed(1)}</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="1" 
+                    max="3" 
+                    step="0.1"
+                    value={saturation} 
+                    onChange={(e) => updateFilters(parseFloat(e.target.value), contrast)}
+                    className="w-full h-2 accent-[#ff4081] cursor-pointer"
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] text-[#8e9192]">对比度</span>
+                    <span className="text-xs font-mono text-[#ffeb3b] font-bold">{contrast.toFixed(2)}</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="1" 
+                    max="2" 
+                    step="0.05"
+                    value={contrast} 
+                    onChange={(e) => updateFilters(saturation, parseFloat(e.target.value))}
+                    className="w-full h-2 accent-[#ffeb3b] cursor-pointer"
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] text-[#8e9192]">最小色块</span>
+                    <span className="text-xs font-mono text-[#4caf50] font-bold">{minSize} 豆</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="1" 
+                    max="30" 
+                    step="1"
+                    value={minSize} 
+                    onTouchStart={() => {
+                      setIsSliding(true);
+                      setSelectedColorId(null);
+                    }}
+                    onTouchEnd={() => setIsSliding(false)}
+                    onChange={(e) => setMinSize(parseInt(e.target.value))}
+                    className="w-full h-2 accent-[#4caf50] cursor-pointer"
+                  />
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile Inventory Bottom Sheet */}
+      <AnimatePresence>
+        {activeMobilePanel === 'inventory' && (
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="md:hidden fixed bottom-16 left-0 right-0 z-40 bg-[#1b1b1c]/95 backdrop-blur-xl border-t border-white/10 rounded-t-2xl max-h-[70vh] overflow-y-auto custom-scrollbar safe-area-bottom"
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+              <div>
+                <span className="text-sm font-bold text-white">库存</span>
+                <span className="text-[10px] text-[#8e9192] ml-2">已匹配 {inventory.length} 种颜色</span>
+              </div>
+              <button onClick={() => setActiveMobilePanel(null)} className="text-[#8e9192] hover:text-white">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div className="p-4 space-y-2">
+              {inventory.map(({ color, count }) => (
+                <div 
+                  key={color.id}
+                  onClick={() => {
+                    if (activeTab === 'project') {
+                      setSelectedColorId(selectedColorId === color.id ? null : color.id);
+                    }
+                    setActiveMobilePanel(null);
+                  }}
+                  className={cn(
+                    "flex items-center justify-between p-3 rounded transition-all active:scale-[0.98]",
+                    selectedColorId === color.id 
+                      ? "bg-[#2a2a2a] border-l-2 border-[#00daf8]" 
+                      : "bg-[#202020]/40 active:bg-[#2a2a2a]"
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <div 
+                      className={cn(
+                        "w-8 h-8 rounded-full border border-white/10 shadow-lg transition-all",
+                        selectedColorId === color.id ? "scale-110 ring-2 ring-white ring-offset-2 ring-offset-[#1b1b1c]" : ""
+                      )}
+                      style={{ backgroundColor: color.hex }}
+                    />
+                    <div>
+                      <p className="text-xs font-bold text-white">{color.name}</p>
+                      <p className="text-[10px] text-[#00daf8] font-mono">{color.id}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-bold text-white">{count.toLocaleString()}</p>
+                    <p className="text-[8px] text-[#8e9192] uppercase">PCS</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile overlay backdrop */}
+      <AnimatePresence>
+        {activeMobilePanel && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="md:hidden fixed inset-0 z-30 bg-black/50"
+            onClick={() => setActiveMobilePanel(null)}
+          />
+        )}
+      </AnimatePresence>
+
       <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 4px;
@@ -1131,6 +1423,9 @@ export default function App() {
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: #474747;
+        }
+        .safe-area-bottom {
+          padding-bottom: env(safe-area-inset-bottom, 0px);
         }
       `}</style>
     </div>
