@@ -78,6 +78,7 @@ export default function App() {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const boardRef = React.useRef<HTMLDivElement>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const mobileFileInputRef = React.useRef<HTMLInputElement>(null);
   const joystickRef = React.useRef<HTMLDivElement>(null);
   const joystickKnobRef = React.useRef<HTMLDivElement>(null);
   const joystickVectorRef = React.useRef({ x: 0, y: 0 });
@@ -648,6 +649,7 @@ export default function App() {
     setOriginalImage(null);
     setAspectRatio(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
+    if (mobileFileInputRef.current) mobileFileInputRef.current.value = '';
   };
 
   const handleUndo = () => {
@@ -755,7 +757,7 @@ export default function App() {
           </div>
 
           <label className="flex flex-col items-center gap-1 group w-full px-2 cursor-pointer">
-            <input ref={fileInputRef} type="file" className="hidden" onChange={handleUpload} accept="image/*" />
+            <input ref={fileInputRef} type="file" className="absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0" style={{ clip: 'rect(0,0,0,0)', clipPath: 'inset(50%)' }} onChange={handleUpload} accept="image/*" />
             <div className="w-12 h-12 flex items-center justify-center text-[#8e9192] group-hover:bg-[#2a2a2a] group-hover:text-white rounded-md transition-all">
               <Upload className="w-6 h-6" />
             </div>
@@ -1181,7 +1183,7 @@ export default function App() {
               {/* Upload and Clear */}
               <div className="flex gap-3">
                 <label className="flex-1 flex items-center justify-center gap-2 p-3 bg-[#2a2a2a] rounded-lg text-white cursor-pointer active:bg-[#353535]">
-                  <input ref={fileInputRef} type="file" className="hidden" onChange={handleUpload} accept="image/*" />
+                  <input ref={mobileFileInputRef} type="file" className="absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0" style={{ clip: 'rect(0,0,0,0)', clipPath: 'inset(50%)' }} onChange={handleUpload} accept="image/*" />
                   <Upload className="w-4 h-4" />
                   <span className="text-xs font-bold">上传图片</span>
                 </label>
