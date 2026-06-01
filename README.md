@@ -1,20 +1,145 @@
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+
+# Bead Pixel Pro — 拼豆像素大师
+
+**将任意图片转化为拼豆像素图纸的专业设计工具**
+
+支持 221 色 / 291 色色系、可调底板尺寸、饱和度与对比度滤镜、图片拖拽定位、缩放查看、颜色隔离、网格控制、PDF / 图片导出，以及移动端完全适配。
+
 </div>
 
-# Run and deploy your AI Studio app
+---
 
-This contains everything you need to run your app locally.
+## 功能特性
 
-View your app in AI Studio: https://ai.studio/apps/01f33856-895b-45dd-91eb-496514321aa2
+### 图片上传与处理
+- **上传任意图片**（支持手机端和桌面端），自动按比例缩放至目标分辨率
+- **智能色彩量化**：将图片像素映射到 221 色或 291 色拼豆色板，基于 Lab 色彩空间 ΔE 计算最优匹配
+- **Floyd-Steinberg 抖动算法**：可选开启，提升渐变区域的视觉效果
+- **线稿模式**：可选保留墨线轮廓（`preserveInkOutlines`），适合漫画 / 线稿图的像素化
+- **背景检测**：自动识别图片四角背景色，过滤背景白色，避免误判
 
-## Run Locally
+### 画布与网格
+- **可调底板尺寸**：支持 7×7 到 302×302（`5×N + 2` 公式），覆盖主流拼豆板规格
+- **网格显示 / 隐藏**：一键切换网格线，方便查看整体效果
+- **图片水平翻转**：一键镜像，适配烫画需求
+- **颜色隔离**：选中某个颜色后，画布上仅高亮该颜色对应的拼豆，方便点数和备料
+- **噪点闪烁检测**：滑动对比原图与处理后图片，闪烁标记像素差异区域
+- **撤销功能**：一键回到初始状态
 
-**Prerequisites:**  Node.js
+### 画布操控
+- **鼠标滚轮缩放**：桌面端滚轮上下滚动实现 0.5x ~ 3x 缩放
+- **触控板缩放**：移动端支持手势缩放
+- **摇杆移动**：桌面端提供虚拟摇杆，可按 cm/s 速度自由移动图片在底板上的位置
+- **拖拽工具**：鼠标拖动画布移动图片
 
+### 图片参数调节
+- **图片缩放**：0.3x ~ 3x，精确控制图片在底板中的占比
+- **宽高比锁定**：上传图片后自动识别比例，调整宽度时高度同步缩放
+- **饱和度调节**：1x ~ 3x，增强色彩鲜艳度
+- **对比度调节**：1x ~ 2x，强化明暗差异
+- **最小色块过滤**：可调 minSize（1 ~ 10），过滤面积过小的孤立色块
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### 导出功能
+- **导出为 PDF**：生成 A4 尺寸的拼豆图纸，包含颜色图例和数量统计
+- **导出为图片**：通过 html2canvas 生成可分享的图纸图片
+
+### 色板与库存
+- **221 色色板**：标准 221 色拼豆色系
+- **291 色色板**：扩展 291 色拼豆色系
+- **实时库存统计**：自动统计每种颜色的使用数量，支持颜色搜索
+
+### 移动端适配
+- 底部导航栏（工具 / 画布 / 库存三个入口）
+- 工具面板底部抽屉式弹出
+- 触摸友好的滑块和按钮
+- 底部安全区域适配（`safe-area-bottom`）
+
+---
+
+## 技术栈
+
+| 类别 | 技术 |
+|------|------|
+| 框架 | React 19 + TypeScript 5.8 |
+| 构建工具 | Vite 6.4 |
+| 样式 | Tailwind CSS 4 |
+| 动画 | Motion (Framer Motion) |
+| 图标 | Lucide React |
+| PDF 导出 | jsPDF |
+| 图片导出 | html2canvas |
+| AI 集成 | Google GenAI SDK（可选） |
+
+---
+
+## 快速开始
+
+### 环境要求
+
+- **Node.js** >= 18
+- **npm** >= 9
+
+### 安装与运行
+
+```bash
+# 克隆仓库
+git clone https://github.com/j7nyi4113-crypto/pixel.git
+cd pixel
+
+# 安装依赖
+npm install
+
+# 启动开发服务器（默认端口 5173）
+npm run dev
+```
+
+启动后访问 `http://localhost:5173` 即可使用。
+
+### 环境变量（可选）
+
+如需使用 AI 功能，复制 `.env.example` 为 `.env.local` 并填入你的 API Key：
+
+```bash
+cp .env.example .env.local
+```
+
+```
+GEMINI_API_KEY="your_api_key_here"
+```
+
+---
+
+## 项目结构
+
+```
+src/
+├── App.tsx                    # 主应用组件（全部 UI 逻辑）
+├── main.tsx                   # 入口文件
+├── index.css                  # 全局样式（Tailwind 导入）
+├── lib/
+│   └── utils.ts               # 工具函数（cn 类名合并）
+├── constants/
+│   └── beadColors.ts          # 221/291 色色板数据
+└── utils/
+    ├── colorUtils.ts           # 颜色转换工具
+    ├── imageProcessing.ts      # 图片像素化处理（量化 + 抖动）
+    └── gridProcessing.ts       # 网格后处理（噪点合并）
+```
+
+---
+
+## 可用脚本
+
+| 命令 | 说明 |
+|------|------|
+| `npm run dev` | 启动开发服务器（端口 5173） |
+| `npm run build` | 构建生产版本（输出到 `dist/`） |
+| `npm run preview` | 预览生产构建 |
+| `npm run lint` | TypeScript 类型检查 |
+| `npm run clean` | 清除构建产物 |
+
+---
+
+## License
+
+MIT
